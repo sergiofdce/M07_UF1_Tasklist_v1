@@ -1,28 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskList</title>
-    <script 
-        src="https://code.jquery.com/jquery-3.7.1.js" 
-        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" 
-        crossorigin="anonymous">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tasklist</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.0/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
+    <style>
+        label, input { display:block; }
+        input.text { margin-bottom:12px; width:95%; padding: .4em; }
+        fieldset { padding:0; border:0; margin-top:25px; }
+        h1 { font-size: 1.2em; margin: .6em 0; }
+        div#users-contain { width: 350px; margin: 20px 0; }
+        .ui-dialog .ui-state-error { padding: .3em; }
+        .validateTips { border: 1px solid transparent; padding: 0.3em; }
+        .accordion-header { cursor: pointer; }
+        .accordion-content { display: none; }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://code.jquery.com/ui/1.14.0/jquery-ui.js"></script>
+    <script>
+        $(function () {
+
+            // Definir Dialog
+            var dialog, form,
+                name = $("#name"),
+                allFields = $([]).add(name);
+
+            // Agregar tarea
+            function addUser() {
+                var taskId = "task-" + Math.random().toString(36).substr(2, 9);
+
+                $("#tasks").append(
+                    "<li>" +
+                        "<h3 class='accordion-header' id='" + taskId + "'>" + name.val() + "</h3>" +
+                        "<div class='accordion-content'>Detalles de la tarea.</div>" +
+                    "</li>"
+                );
+
+                $("#tasks").accordion("refresh");
+
+                dialog.dialog("close");
+                return true;
+            }
+
+            // Mostrar Dialog
+            dialog = $("#dialog-form").dialog({
+                autoOpen: false,
+                height: 250,
+                width: 350,
+                modal: true,
+                buttons: {
+                    "Create task": addUser,
+                    Cancel: function () {
+                        dialog.dialog("close");
+                    }
+                },
+                close: function () {
+                    form[0].reset();
+                    allFields.removeClass("ui-state-error");
+                }
+            });
+
+            // Enviar datos del formulario "task"
+            form = dialog.find("form").on("submit", function (event) {
+                event.preventDefault();
+                addUser();
+            });
+
+            // Abrir Dialog 
+            $("#create-user").button().on("click", function () {
+                dialog.dialog("open");
+            });
+
+            // Implementar la funcionalidad de Accordion
+            $("#tasks").accordion({
+                header: ".accordion-header",
+                collapsible: true,
+                active: false
+            });
+
+        });
     </script>
 </head>
 <body>
-    <h1>TaskList</h1>
 
-    <ul>
-        <li>Ejemplo tasklist</li>
-    </ul>
+<div id="dialog-form" title="Create new task">
+    <form>
+        <fieldset>
+            <label for="name">Task name</label>
+            <input type="text" name="name" id="name" placeholder="Do the dishes" class="text ui-widget-content ui-corner-all">
+            <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+        </fieldset>
+    </form>
+</div>
 
-    <!-- v0.1 - tasklist bàsica, pot afegir tasques -->
-    <script type="text/javascript">
-        var tasca = prompt("Tasca?");
-        var jquery_elem = $("<li>"+ tasca + "</li>");
-        $("ul").append(jquery_elem);
-    </script>
+<div id="users-contain" class="ui-widget">
+    <h1>Tasks list</h1>
+
+    <div id="accordion">
+        <ul id="tasks">
+            <li>
+                <h3 class="accordion-header">Task 1</h3>
+                <div class="accordion-content">Detalles de la tarea.</div>
+            </li>
+        </ul>
+    </div>
+
+</div>
+<button id="create-user">New task</button>
 
 </body>
 </html>
