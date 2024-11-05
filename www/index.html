@@ -43,19 +43,44 @@
                 name = $("#name"),
                 allFields = $([]).add(name);
 
-            // Agregar tarea
-            function addUser() {
-                var taskId = "task-" + Math.random().toString(36).substr(2, 9);
+            // Cargar tareas desde localStorage
+            function loadTasks() {
+                const tasksData = JSON.parse(localStorage.getItem("tasks")) || [];
+                tasksData.forEach(task => addTaskToDOM(task.id, task.name));
+                $("#tasks").accordion("refresh");
+            }
 
+             // Guardar tareas en localStorage
+             function saveTasks() {
+                const tasks = [];
+                $("#tasks li").each(function () {
+                    const taskId = $(this).find(".accordion-header").attr("id");
+                    const taskName = $(this).find(".accordion-header").text();
+                    tasks.push({ id: taskId, name: taskName });
+                });
+                localStorage.setItem("tasks", JSON.stringify(tasks));
+            }
+
+            // Función para agregar tarea al DOM y al localStorage
+            function addTaskToDOM(id, taskName) {
                 $("#tasks").append(
                     "<li>" +
-                        "<h3 class='accordion-header' id='" + taskId + "'>" + name.val() + "</h3>" +
+                        "<h3 class='accordion-header' id='" + id + "'>" + taskName + "</h3>" +
                         "<div class='accordion-content'>" +
                             "<span class='edit-button'>Edit</span>" +
                             "<span class='delete-button'>Delete</span>" +
                         "</div>" +
                     "</li>"
                 );
+            }
+
+            // Agregar tarea
+            function addUser() {
+                var taskId = "task-" + Math.random().toString(36).substr(2, 9);
+
+                // Guardar tareas en localStorage
+                addTaskToDOM(taskId, name.val());
+                saveTasks();
 
                 $("#tasks").accordion("refresh");
 
@@ -63,7 +88,7 @@
                 return true;
             }
 
-            // Mostrar Dialog
+            // Mostrar Dialog para crear tareas
             dialog = $("#dialog-form").dialog({
                 autoOpen: false,
                 height: 250,
@@ -99,9 +124,14 @@
                 active: false
             });
 
+            // Cargar tareas desde localStorage cuando se carga la página
+            loadTasks();
+
             // Función para eliminar tarea
             $(document).on("click", ".delete-button", function () {
                 $(this).closest("li").remove();
+                // Guardar tareas en localStorage
+                saveTasks();
                 $("#tasks").accordion("refresh");
             });
 
@@ -130,8 +160,12 @@
                     "<span class='delete-button'>Delete</span>"
                 );
                 
+                // Guardar tareas en localStorage
+                saveTasks();
+
                 // Refrescar el acordeón
                 $("#tasks").accordion("refresh");
+                
             });
 
         });
@@ -154,13 +188,13 @@
 
         <div id="accordion">
             <ul id="tasks">
-                <li>
+                <!-- <li>
                     <h3 class="accordion-header">Task 1</h3>
                     <div class="accordion-content">
                         <span class="edit-button">Edit</span>
                         <span class="delete-button">Delete</span>
                     </div>
-                </li>
+                </li> -->
             </ul>
         </div>
 
